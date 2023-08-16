@@ -4,12 +4,12 @@ import MovieDetailsPage from './screen/MovieDetailsPage';
 
 function App() {
 	return (
-		<div>
+		<>
 			<Routes>
 				<Route path='/' element={<HomePage />} />
 				<Route path='/MovieDetails' element={<MovieDetailsPage />} />
 			</Routes>
-		</div>
+		</>
 	);
 }
 
