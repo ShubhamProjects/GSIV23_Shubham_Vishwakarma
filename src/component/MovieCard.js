@@ -14,7 +14,7 @@ const MovieCardComponent = ({ movieObj, onClickEvent, hideMovieDesc }) => {
 				<img
 					alt='moviePoster'
 					src={`https://image.tmdb.org/t/p/w500/${movieObj?.poster_path}`}
-					className='h-64 w-56 max-w-max '
+					className='h-64 w-56 max-w-fit overflow-hidden'
 				/>
 			</div>
 			{!hideMovieDesc && (

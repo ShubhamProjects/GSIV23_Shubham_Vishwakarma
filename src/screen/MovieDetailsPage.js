@@ -2,13 +2,30 @@ import React, { useEffect, useState } from 'react';
 import { HomeIcon } from '@heroicons/react/24/solid';
 import { useNavigate, useLocation } from 'react-router-dom';
 import MovieCardComponent from '../component/MovieCard';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+	clearMovieDetailResponse,
+	getMovieDetailResponse,
+	setMovieDetailResponse,
+} from '../core/DataSlice';
+import moment from 'moment/moment';
 
 const MovieDetailsPage = () => {
 	const navigate = useNavigate();
 	const { state } = useLocation();
 	const { movieObj } = state;
 
+	const dispatch = useDispatch();
+	const movieDetailResponse = useSelector(getMovieDetailResponse);
+
 	const [details, setDetails] = useState({});
+
+	useEffect(() => {
+		if (movieDetailResponse) {
+			setDetails(movieDetailResponse);
+		}
+		return () => dispatch(clearMovieDetailResponse());
+	}, [movieDetailResponse]);
 
 	const goToHomePage = () => {
 		navigate(-1);
@@ -23,17 +40,16 @@ const MovieDetailsPage = () => {
 			method: 'GET',
 			headers: {
 				accept: 'application/json',
-				Authorization:
-					'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2MGUyZmNiMGY1ZTJmMGQyMjQyNzNlNTMwMzBiY2U3MSIsInN1YiI6IjY0ZGNmNmM2MzcxMDk3MDBjNTFkNWFiMiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.yCJdmDi1Y8_RwrTxonbIz5NBvZD7FIAt7acsdYYJ-50',
+				Authorization: process.env.REACT_APP_AUTH_TOKEN,
 			},
 		};
 
 		await fetch(
-			`https://api.themoviedb.org/3/movie/${movieObj?.id}?language=en-US`,
+			`${process.env.REACT_APP_BASE_URL}movie/${movieObj?.id}?language=en-US`,
 			options
 		)
 			.then((response) => response.json())
-			.then((response) => setDetails(response))
+			.then((response) => dispatch(setMovieDetailResponse(response)))
 			.catch((err) => console.error(err));
 	};
 
@@ -50,10 +66,18 @@ const MovieDetailsPage = () => {
 			<div className='md:flex'>
 				<MovieCardComponent movieObj={details} hideMovieDesc={true} />
 				<div className={`flex flex-col md:mt-4 ml-4 md:ml-0`}>
-					<span>{`${details?.title} (${details?.vote_average})`}</span>
-					<span>{`${details?.release_date} | ${details?.runtime} | Director`}</span>
-					<span>Cast: Actor1, Actor2, ...</span>
-					<span>{details?.overview}</span>
+					<div className='flex mb-2'>
+						<span className='mr-4 text-lg font-semibold'>{`${details?.title}`}</span>
+						<span className='mr-4 font-mono'>{` (${details?.vote_average})`}</span>
+					</div>
+					<span className='mb-2'>{`${moment(details?.release_date).format(
+						'YYYY'
+					)} | ${moment
+						.duration(details?.runtime, 'minutes')
+						.asHours()
+						.toFixed(2)} Hrs | Director`}</span>
+					<span className='text-base'>Cast: Actor1, Actor2, ...</span>
+					<span className='mt-3 font-serif'>{details?.overview}</span>
 				</div>
 			</div>
 		</>
